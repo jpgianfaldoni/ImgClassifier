@@ -5,8 +5,8 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 
 
-origin_dir = 'data'
-destination_dir = 'data_resized'
+origin_dir =  os.getcwd() + "\\Assets\\Data_Filtered_Resized" #r"C:\Users\jpgia\Documents\Projetos\ImgClassifier\Assets\Data_Filtered_Resized"
+destination_dir = os.getcwd() + "\\Assets\\Data_Filtered_Resized2"
 output_size = (120,120)
 
 current_dir = destination_dir[:]

@@ -13,10 +13,12 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
+import os
 
 
-NUM_CLUSTERS = 40
-force_new_vocab = 1
+
+NUM_CLUSTERS = 70
+force_new_vocab = 0
 
 origin_dir2 = os.getcwd() + "\\Assets\\Data_Filtered_Resized" #r"C:\Users\jpgia\Documents\Projetos\ImgClassifier\Assets\Data_Filtered_Resized"
 
@@ -27,8 +29,6 @@ def collect_img_names(origin_dir2):
     cont = 0
     for folder in os.listdir(origin_dir2):
         for file in os.listdir(os.path.join(origin_dir2,folder)):
-            if cont > 150:
-                break
             if not file.endswith(('.gif','.svg','.asp')):
                 X.append(os.path.join(origin_dir2,folder,file))
                 Y.append(folder)
@@ -40,10 +40,15 @@ def cria_vocabulario(imagens, num_clusters):
     km = cv2.BOWKMeansTrainer(num_clusters)
     akaze = cv2.KAZE_create()
     for p in imagens:
-        img = cv2.imread(p, cv2.IMREAD_GRAYSCALE)
-        mask = np.ones(img.shape)
-        kp, desc = akaze.detectAndCompute(img, mask)
-        km.add(desc)
+        try:
+            img = cv2.imread(p, cv2.IMREAD_GRAYSCALE)
+            mask = np.ones(img.shape)
+            kp, desc = akaze.detectAndCompute(img, mask)
+            km.add(desc)
+        except:
+            print(p)
+            os.remove(p)
+            pass
     return km.cluster()
 
 def representa(vocab, img):
@@ -56,8 +61,11 @@ def representa(vocab, img):
 def transforma_imagens(imagens, vocab):
     X = []
     for p in imagens:
-        img = cv2.imread(p, cv2.IMREAD_GRAYSCALE)
-        X.append(representa(vocab, img).flatten())
+        try:
+            img = cv2.imread(p, cv2.IMREAD_GRAYSCALE)
+            X.append(representa(vocab, img).flatten())
+        except:
+            pass
     return np.array(X)
 
 def plot_confusion_matrix(y_true, y_pred, classes,
